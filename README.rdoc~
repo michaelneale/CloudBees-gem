@@ -1,0 +1,20 @@
+= NAME - Description
+
+  GitHub:     http://github.com/harukizaemon/NAME
+  Gemcutter:  http://gemcutter/gems/NAME
+  email:      haruki.zaemon@gmail.com
+  IRC:        #haruki_zaemon on freenode
+
+== Introduction
+
+== Installation
+
+NAME is distributed as a gem via gemcutter (http://gemcutter.org/gems/NAME) or as source via GitHub (http://github.com/harukizaemon/NAME).
+
+Installation via the gem is easy:
+
+  > gem install NAME
+
+Once installed, all that remains is to make the classes available in your code:
+
+  require 'NAME'

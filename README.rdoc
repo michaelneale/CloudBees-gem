@@ -1,20 +1,19 @@
-= NAME - Description
+= CloudBees - Description
 
-  GitHub:     http://github.com/harukizaemon/NAME
-  Gemcutter:  http://gemcutter/gems/NAME
-  email:      haruki.zaemon@gmail.com
-  IRC:        #haruki_zaemon on freenode
+  GitHub:     http://github.com/michaelneale/CloudBees-gem  
 
 == Introduction
+  CloudBees gem for deploying ruby rack based apps (such as rails) to CloudBees Paas (via jruby)
 
 == Installation
 
-NAME is distributed as a gem via gemcutter (http://gemcutter.org/gems/NAME) or as source via GitHub (http://github.com/harukizaemon/NAME).
 
 Installation via the gem is easy:
 
-  > gem install NAME
+  > gem install cloudbees
 
-Once installed, all that remains is to make the classes available in your code:
+Once installed, you use it via: 
 
-  require 'NAME'
+  > cloudbees
+
+It will tell you what to do (run it in your rack/rails app directory)
