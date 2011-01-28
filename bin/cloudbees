@@ -1,2 +1,48 @@
 #!/usr/bin/env ruby
 
+
+def has_program?(program)
+  ENV['PATH'].split(File::PATH_SEPARATOR).any? do |directory|
+    File.executable?(File.join(directory, program.to_s))
+  end
+end
+
+
+if not has_program?('bees') then
+  abort('Please install the CloudBees SDK from here: www.cloudbees.com/run.cb')
+end
+
+usage_message = 'Usage: cloudbees deploy USER/APPNAME ["(optional) description here"]'
+
+if ARGV.size < 2 then
+  abort(usage_message)
+end
+
+task = ARGV[0]
+
+if task != "deploy" then
+  abort(usage_message)
+end
+
+
+app_id = ARGV[1]
+
+
+
+puts "Packaging the application locally, please wait..."
+
+   `warble`
+
+wars = Dir.glob("*.war")
+
+if wars.size != 1 then
+  abort("Unable to find war to deploy - warbler failure.")  
+end
+
+puts "Now deploying to CloudBees..."
+
+if ARGV.size == 2 then
+  `bees app:deploy -a #{app_id} #{wars[0]}`
+else
+  `bees app:deploy -a #{app_id} -m "#{ARGV[2]}" #{wars[0]}`
+end

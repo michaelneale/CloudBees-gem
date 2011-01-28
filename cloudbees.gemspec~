@@ -17,6 +17,5 @@ Gem::Specification.new do |s|
   s.require_path     = "lib"
   s.files            = Dir["bin/**/*", "lib/**/*", "spec/**/*", "tasks/**/*", "Rakefile"] + s.extra_rdoc_files
   s.add_development_dependency("rspec", "~> 2")
-  s.add_dependency("warbler")
   
 end

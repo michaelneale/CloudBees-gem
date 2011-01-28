@@ -1,3 +1,23 @@
 #!/usr/bin/env ruby
 
-puts "this is new"
+if not has_program?('beex') then
+  abort('Please install the CloudBees SDK from here: www.cloudbees.com/run.cb')
+end
+
+task = ARGV[0]
+if task == "deploy" then
+   puts "packaging the application...."
+   `warble`
+   puts "Now deploying..."
+   `bees app:deploy -a michaelneale/opiu miko.war`
+else 
+   puts "Usage: cloudbees deploy"
+end
+
+
+
+def has_program?(program)
+  ENV['PATH'].split(File::PATH_SEPARATOR).any? do |directory|
+    File.executable?(File.join(directory, program.to_s))
+  end
+end
