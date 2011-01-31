@@ -8,9 +8,15 @@ def has_program?(program)
 end
 
 
+
 if not has_program?('bees') then
-  abort('Please install the CloudBees SDK from here: www.cloudbees.com/run.cb')
+  abort('Please install the CloudBees SDK www.cloudbees.com/run.cb')
 end
+
+if not has_program?('warble') then
+  abort('Please install warbler (gem install warbler)')
+end
+
 
 usage_message = 'Usage: cloudbees deploy USER/APPNAME ["(optional) description here"]'
 
@@ -31,7 +37,11 @@ app_id = ARGV[1]
 
 puts "Packaging the application locally, please wait..."
 
-   `warble`
+packaging_success =  system("warble")
+
+if not packaging_success then
+  abort("Unable to package the application as a war, see errors above")
+end
 
 wars = Dir.glob("*.war")
 
@@ -42,7 +52,8 @@ end
 puts "Now deploying to CloudBees..."
 
 if ARGV.size == 2 then
-  `bees app:deploy -a #{app_id} #{wars[0]}`
+  `bees app:deploy -a #{app_id} #{wars[0]}"`
 else
   `bees app:deploy -a #{app_id} -m "#{ARGV[2]}" #{wars[0]}`
 end
+
