@@ -8,52 +8,148 @@ def has_program?(program)
 end
 
 
+#if not detected bees on path - ask them to download from URL, install, and set bees home
+#if no BEES_HOME, then can either search for it (home dir), or ask them to set it
+
 
 if not has_program?('bees') then
-  abort('Please install the CloudBees SDK www.cloudbees.com/run.cb')
+  abort('No CloudBees detected. Please install the CloudBees SDK:
+  1 download it from: http://cloudbees-downloads.s3.amazonaws.com/sdk/cloudbees-sdk-0.5.0-dist.zip
+  2 unzip to location of your choice
+  3 add the bees or bees.bat command to your path (depending on platform)
+  4 set the BEES_HOME environment variable to point to where you installed the SDK
+  5 there is no step 5.')
 end
 
 if not has_program?('warble') then
   abort('Please install warbler (gem install warbler)')
 end
 
-
-usage_message = 'Usage: cloudbees deploy USER/APPNAME ["(optional) description here"]'
-
-if ARGV.size < 2 then
-  abort(usage_message)
-end
-
-task = ARGV[0]
-
-if task != "deploy" then
-  abort(usage_message)
+if not ENV['BEES_HOME'] then
+  abort("You have the bees command installed, but the BEES_HOME environment variable is not set, please set it to where the SDK is installed.")
 end
 
 
-app_id = ARGV[1]
+@usage = "
+This provides ruby/rack/rails commands for CloudBees services, deploys your app using jruby and warbler to RUN@cloud.
+Access your web console at https://run.cloudbees.com - you can find your app ids and db ids etc from there, create databases and more.
+
+Usage:
+  cloudbees deploy [account_name/application_name]
+    - this will package the app in the current directory,
+      and deploy it with production environment settings.
+      Add on \"a description\" (with quotes) at the end optionally for tagging.
+  cloudbees tail
+    - open a live tail to your app as it is running
+  cloudbees restart
+    - restart the app, if you need to.
+  cloudbees delete
+    - delete the app
+  cloudbees help
+    - show help on the cloudbees SDK and the 'bees' command
+
+
+"
 
 
 
-puts "Packaging the application locally, please wait..."
+if ARGV.size == 0 then
+ abort(@usage)
 
-packaging_success =  system("warble")
-
-if not packaging_success then
-  abort("Unable to package the application as a war, see errors above")
 end
 
-wars = Dir.glob("*.war")
 
-if wars.size != 1 then
-  abort("Unable to find war to deploy - warbler failure.")  
+
+@command = ARGV[0]
+
+if not ["deploy", "tail", "restart", "delete", "help"].include? @command then
+  abort(@usage)
 end
 
-puts "Now deploying to CloudBees..."
-
-if ARGV.size == 2 then
-  `bees app:deploy -a #{app_id} #{wars[0]}"`
-else
-  `bees app:deploy -a #{app_id} -m "#{ARGV[2]}" #{wars[0]}`
+def stash_app_id id
+  File.open("cloudbees.appid", 'w') {|f| f.write(id) }
 end
+
+def get_app_id
+  if ARGV.size == 1 then
+    if File.exists?('cloudbees.appid') then
+      File.read('cloudbees.appid')
+    else
+      puts "Please enter application id (acount_name/application_name)"
+      app_id = STDIN.gets.chomp
+      stash_app_id app_id
+      app_id
+    end
+  else
+    ARGV[2]
+  end
+end
+
+def deploy
+
+  app_id = get_app_id
+
+  puts "Packaging the application locally, please wait..."
+  if not system("warble") then
+    abort("Unable to package the application as a war, see errors above")
+  end
+
+  wars = Dir.glob("*.war")
+  if wars.size != 1 then
+    abort("Unable to find war to deploy - warbler failure.")
+  end
+
+  puts "Now deploying to CloudBees..."
+  if ARGV.size == 3 then
+    `bees app:deploy -a #{app_id} -m "#{ARGV[2]}" #{wars[0]}`
+  else
+    `bees app:deploy -a #{app_id} #{wars[0]}"`
+  end
+end
+
+def tail
+  app_id = get_app_id
+  system("bees app:tail -a #{app_id}")
+end
+
+def restart
+  app_id = get_app_id
+  system("bees app:restart -a #{app_id}")
+end
+
+def delete
+  puts "Please enter the app id that you want to delete:"
+  app_id = STDIN.gets
+  system("bees app:delete -a #{app_id}")
+end
+
+def help
+  puts @usage
+  puts "  
+
+Databases in rails:
+  You can use the CloudBees managed MySQL databases if you wish. You can create these with the bees command or
+  from run.cloudbees.com. 
+  Your app will be deployed in production environment, so your database.yml (production) should look like:
+
+    adapter: jdbc
+    driver: com.cloudbees.jdbc.Driver
+    url: jdbc:cloudbees://BEES_DB_NAME(get from console)
+    username: BEES_DB_USERNAME(get from console)
+    password: BEES_DB_PASSWORD(get from console)
+
+You can get more details about managed databases on you run.cloudbees.com console. 
+
+Also, you can use the 'bees' command for more low level control:
+    bees help
+
+Also check out https://cloudbees.zendesk.com/entries/417131-rails for more info.
+Please go to https://cloudbees.zendesk.com/categories/2200-run-cloud for any questions.
+
+       "
+end
+
+
+
+eval(@command)
 
