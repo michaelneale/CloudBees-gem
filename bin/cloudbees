@@ -103,7 +103,7 @@ def deploy
   if ARGV.size == 3 then
     `bees app:deploy -a #{app_id} -m "#{ARGV[2]}" #{wars[0]}`
   else
-    `bees app:deploy -a #{app_id} #{wars[0]}"`
+    `bees app:deploy -a #{app_id} #{wars[0]}`
   end
 end
 

@@ -12,8 +12,28 @@ Installation via the gem is easy:
 
   > gem install cloudbees
 
+
+
 Once installed, you use it via: 
 
   > cloudbees
 
-It will tell you what to do (run it in your rack/rails app directory)
+Access your web console at https://run.cloudbees.com - you can find your app ids and db ids etc from there, create databases and more.
+Usage:
+  cloudbees deploy [account_name/application_name]
+    - this will package the app in the current directory,
+      and deploy it with production environment settings.
+      Add on "a description" (with quotes) at the end optionally for tagging.
+  cloudbees tail
+    - open a live tail to your app as it is running
+  cloudbees restart
+    - restart the app, if you need to.
+  cloudbees delete
+    - delete the app
+  cloudbees help
+    - show help on the cloudbees SDK and the 'bees' command
+
+
+
+Combines the most excellent  https://github.com/nicksieger/warbler with the CloudBees SDK for your convenience.
+JRuby Rack is used - which is a lightweight adapter to the servlet api for all rack based apps. 
